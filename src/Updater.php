@@ -35,6 +35,12 @@ class Updater
     protected const QUEUE_LOCK = 'filament-self-updater:queue';
 
     /**
+     * How much of a log the page shows. The page re-renders every two seconds
+     * while an update runs, so a log of many thousand lines is not sent whole.
+     */
+    public const LOG_LINES = 2000;
+
+    /**
      * @param  list<string|list<string>>  $postUpdateCommands  a string runs through the shell, an array without one
      */
     public function __construct(
@@ -102,9 +108,19 @@ class Updater
         return $this->status()?->isActive($this->timeout) ?? false;
     }
 
-    public function logTail(UpdateStatus $status, int $lines = 200): string
+    public function logTail(UpdateStatus $status, int $lines = self::LOG_LINES): string
     {
         return $status->log === null ? '' : $this->state->logTail($status->log, $lines);
+    }
+
+    public function logLineCount(UpdateStatus $status): int
+    {
+        return $status->log === null ? 0 : $this->state->logLineCount($status->log);
+    }
+
+    public function logPath(UpdateStatus $status): ?string
+    {
+        return $status->log === null ? null : $this->state->logPath($status->log);
     }
 
     /**

@@ -51,6 +51,7 @@ return [
         'failed_after' => 'Die Dateien sind auf :version, aber ein Post-Update-Befehl ist fehlgeschlagen. Details im Log unten.',
         'show_log' => 'Log anzeigen (:lines Zeile)|Log anzeigen (:lines Zeilen)',
         'hide_log' => 'Log ausblenden',
+        'log_truncated' => 'Die erste Zeile steht nur in der Logdatei :file.|Die ersten :lines Zeilen stehen nur in der Logdatei :file.',
     ],
 
     'state' => [

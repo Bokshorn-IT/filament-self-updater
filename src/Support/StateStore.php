@@ -71,17 +71,30 @@ class StateStore
     /**
      * The last lines of a log, with terminal colour codes removed.
      */
-    public function logTail(string $log, int $lines = 200): string
+    public function logTail(string $log, int $lines): string
+    {
+        return implode("\n", array_slice($this->logLines($log), -$lines));
+    }
+
+    public function logLineCount(string $log): int
+    {
+        return count($this->logLines($log));
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function logLines(string $log): array
     {
         $path = $this->logPath($log);
 
         if (! is_file($path)) {
-            return '';
+            return [];
         }
 
-        $content = preg_replace('/\e\[[0-9;]*[A-Za-z]/', '', (string) file_get_contents($path)) ?? '';
+        $content = rtrim(preg_replace('/\e\[[0-9;]*[A-Za-z]/', '', (string) file_get_contents($path)) ?? '');
 
-        return implode("\n", array_slice(explode("\n", rtrim($content)), -$lines));
+        return $content === '' ? [] : explode("\n", $content);
     }
 
     public function logPath(string $log): string

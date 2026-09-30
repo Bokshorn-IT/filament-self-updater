@@ -51,6 +51,7 @@ return [
         'failed_after' => 'The files are on :version, but a post-update command failed. Check the log below.',
         'show_log' => 'Show log (:lines line)|Show log (:lines lines)',
         'hide_log' => 'Hide log',
+        'log_truncated' => 'The first line is only in the log file :file.|The first :lines lines are only in the log file :file.',
     ],
 
     'state' => [

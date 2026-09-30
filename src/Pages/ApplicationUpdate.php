@@ -182,6 +182,23 @@ class ApplicationUpdate extends Page
         return $status === null ? '' : $this->updater()->logTail($status);
     }
 
+    public function getLogPath(): ?string
+    {
+        $status = $this->getStatus();
+
+        return $status === null ? null : $this->updater()->logPath($status);
+    }
+
+    /**
+     * Lines at the start of the log the page leaves out.
+     */
+    public function getOmittedLogLines(): int
+    {
+        $status = $this->getStatus();
+
+        return $status === null ? 0 : max(0, $this->updater()->logLineCount($status) - Updater::LOG_LINES);
+    }
+
     protected function loadVersions(bool $fresh = false): void
     {
         $updater = $this->updater();

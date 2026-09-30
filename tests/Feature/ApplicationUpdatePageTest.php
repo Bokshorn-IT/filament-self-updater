@@ -5,8 +5,10 @@ declare(strict_types=1);
 use BokshornIt\FilamentSelfUpdater\Jobs\InstallUpdate;
 use BokshornIt\FilamentSelfUpdater\Pages\ApplicationUpdate;
 use BokshornIt\FilamentSelfUpdater\Support\StateStore;
+use BokshornIt\FilamentSelfUpdater\Support\UpdateStatus;
 use BokshornIt\FilamentSelfUpdater\Tests\Fixtures\FakeSource;
 use BokshornIt\FilamentSelfUpdater\Tests\Fixtures\TestUser;
+use BokshornIt\FilamentSelfUpdater\Updater;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
@@ -79,6 +81,23 @@ it('asks GitHub again on check', function (): void {
     $page->callAction('check')
         ->assertSet('availableVersion', 'v1.2.0')
         ->assertNotified('Update available: v1.2.0');
+});
+
+it('shows the last lines of a long log and says where the rest is', function (): void {
+    $state = new StateStore($this->sandbox('state'));
+    $status = UpdateStatus::queued('v1.0.0', null, 'long.log')->succeeded();
+    $state->putStatus($status);
+    $state->appendLog('long.log', implode("\n", array_map(
+        fn (int $line): string => sprintf('line %04d', $line),
+        range(1, Updater::LOG_LINES + 150),
+    )));
+
+    Livewire::test(ApplicationUpdate::class)
+        ->assertSee('Show log ('.(Updater::LOG_LINES + 150).' lines)')
+        ->assertSee('The first 150 lines are only in the log file')
+        ->assertSee('long.log')
+        ->assertSee('line 0151')
+        ->assertDontSee('line 0150');
 });
 
 it('explains a failed lookup instead of breaking the page', function (): void {

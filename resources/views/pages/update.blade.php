@@ -1,5 +1,6 @@
 @php
     use BokshornIt\FilamentSelfUpdater\Enums\UpdateState;
+    use Illuminate\Support\Str;
 
     $status = $this->getStatus();
     $running = $this->isRunning();
@@ -176,9 +177,15 @@
                          every two seconds and would close a <details> each time. --}}
                     <div x-data="{ open: @js($status->state === UpdateState::Failed) }" class="mt-4">
                         <x-filament::link tag="button" type="button" x-on:click="open = ! open" color="gray" size="sm">
-                            <span x-show="! open">{{ trans_choice('filament-self-updater::self-updater.run.show_log', $lines = substr_count($log, "\n") + 1, ['lines' => $lines]) }}</span>
+                            <span x-show="! open">{{ trans_choice('filament-self-updater::self-updater.run.show_log', $lines = substr_count($log, "\n") + 1 + ($omitted = $this->getOmittedLogLines()), ['lines' => $lines]) }}</span>
                             <span x-show="open" x-cloak>{{ __('filament-self-updater::self-updater.run.hide_log') }}</span>
                         </x-filament::link>
+
+                        @if ($omitted > 0)
+                            <p x-show="open" x-cloak class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                {{ trans_choice('filament-self-updater::self-updater.run.log_truncated', $omitted, ['lines' => $omitted, 'file' => str_replace('\\', '/', Str::after((string) $this->getLogPath(), base_path().DIRECTORY_SEPARATOR))]) }}
+                            </p>
+                        @endif
 
                         <pre x-show="open" x-cloak class="mt-3 max-h-96 overflow-auto rounded-lg bg-gray-950 p-4 font-mono text-xs leading-relaxed text-gray-100 dark:bg-black/40">{{ $log }}</pre>
                     </div>
